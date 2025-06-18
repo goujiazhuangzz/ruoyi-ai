@@ -13,6 +13,7 @@ import okhttp3.sse.EventSourceListener;
 import org.jetbrains.annotations.NotNull;
 import org.ruoyi.chat.service.chat.IChatCostService;
 import org.ruoyi.common.chat.entity.chat.ChatCompletionResponse;
+import org.ruoyi.common.chat.entity.chat.Message;
 import org.ruoyi.common.chat.request.ChatRequest;
 import org.ruoyi.common.core.utils.SpringUtils;
 import org.ruoyi.common.core.utils.StringUtils;
@@ -23,7 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.Objects;
 
 /**
- * 描述：OpenAIEventSourceListener
+ *  OpenAIEventSourceListener
  *
  * @author https:www.unfbx.com
  * @date 2023-02-22
@@ -33,12 +34,19 @@ import java.util.Objects;
 @Component
 public class SSEEventSourceListener extends EventSourceListener {
 
+    private SseEmitter emitter;
+
+    private Long userId;
+
+    private Long sessionId;
+
     @Autowired(required = false)
-    public SSEEventSourceListener(SseEmitter emitter) {
+    public SSEEventSourceListener(SseEmitter emitter,Long userId,Long sessionId) {
         this.emitter = emitter;
+        this.userId = userId;
+        this.sessionId = sessionId;
     }
 
-    private SseEmitter emitter;
 
     private StringBuilder stringBuffer = new StringBuilder();
 
@@ -66,7 +74,11 @@ public class SSEEventSourceListener extends EventSourceListener {
                 emitter.complete();
                 // 扣除费用
                 ChatRequest chatRequest = new ChatRequest();
+                // 设置对话角色
+                chatRequest.setRole(Message.Role.ASSISTANT.getName());
                 chatRequest.setModel(modelName);
+                chatRequest.setUserId(userId);
+                chatRequest.setSessionId(sessionId);
                 chatRequest.setPrompt(stringBuffer.toString());
                 chatCostService.deductToken(chatRequest);
                 return;
@@ -84,10 +96,10 @@ public class SSEEventSourceListener extends EventSourceListener {
                     modelName = completionResponse.getModel();
                 }
                 stringBuffer.append(content);
-                emitter.send(content);
+                emitter.send(data);
             }
         } catch (Exception e) {
-            emitter.completeWithError(e);
+            log.error(e.getMessage(), e);
         }
     }
 
