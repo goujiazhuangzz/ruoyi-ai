@@ -1,15 +1,39 @@
 {
   "mcpServers": {
+    "时间": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-time"
+      ],
+      "env": {}
+    },
+    "redis": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-redis",
+        "redis://127.0.0.1:6379"
+      ],
+      "env": {}
+    },
+    "everything": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-everything-search"
+      ],
+      "env": {}
+    },
     "fileSystem": {
-      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "command": "/usr/local/bin/npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "D:\\"
-      ]
+        "/Users/liuzhiqiang/"
+      ],
+      "env": {}
     },
     "search1api": {
-      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "command": "/usr/local/bin/npx",
       "args": [
         "-y",
         "search1api-mcp"
